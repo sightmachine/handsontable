@@ -138,18 +138,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   border-color: #FFF;
 }
 
-.handsontable th:first-child,
-.handsontable td:first-of-type,
-.handsontable .htNoFrame + th,
-.handsontable .htNoFrame + td {
-  border-left: 1px solid #CCC;
-}
-
 .handsontable.htRowHeaders thead tr th:nth-child(2) {
   border-left: 1px solid #CCC;
 }
 
-.handsontable tr:first-child th,
 .handsontable tr:first-child td {
   border-top: 1px solid #CCC;
 }
@@ -1389,4 +1381,3 @@ http://nicolasgallagher.com/micro-clearfix-hack/
     border-bottom: none;
     cursor: help;
 }
-
