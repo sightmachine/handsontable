@@ -408,6 +408,23 @@ describe('Core_selection', function () {
     expect(tickEnd).toEqual(1);
   });
 
+  it('should properly select columns, when the user moves the cursor over column headers across two overlays', function () {
+    handsontable({
+      startRows: 5,
+      startCols: 5,
+      colHeaders: true,
+      fixedColumnsLeft: 2
+    });
+
+    this.$container.find('.ht_clone_left tr:eq(0) th:eq(1)').simulate('mousedown');
+    this.$container.find('.ht_clone_left tr:eq(0) th:eq(1)').simulate('mouseover');
+    this.$container.find('.ht_clone_top tr:eq(0) th:eq(2)').simulate('mouseover');
+    this.$container.find('.ht_clone_left tr:eq(0) th:eq(1)').simulate('mouseover');
+    this.$container.find('.ht_clone_left tr:eq(0) th:eq(1)').simulate('mouseup');
+
+    expect(getSelected()).toEqual([0, 1, 4, 1]);
+  });
+
   it('should move focus to selected cell', function () {
     var $input = $('<input>').appendTo(document.body);
     handsontable({
@@ -478,63 +495,63 @@ describe('Core_selection', function () {
     expect(getSelected()).toEqual([0, 0, 49, 0]);
   });
 
-  //it("should set the selection end to the first visible row, when dragging the selection from a cell to a column header", function () {
-  //  var hot = handsontable({
-  //    width: 200,
-  //    height: 200,
-  //    startRows: 20,
-  //    startCols: 20,
-  //    colHeaders: true,
-  //    rowHeaders: true
-  //  });
-  //
-  //  hot.view.wt.scrollVertical(10);
-  //  hot.view.wt.scrollHorizontal(10);
-  //
-  //  hot.render();
-  //
-  //  waits(30);
-  //
-  //  runs(function() {
-  //    $(getCell(12,11)).simulate('mousedown');
-  //    this.$container.find('.ht_clone_top thead th:eq(2)').simulate('mouseover');
-  //  });
-  //
-  //  waits(30);
-  //
-  //  runs(function() {
-  //    expect(getSelected()).toEqual([12, 11, 10, 11]);
-  //  });
-  //});
+  it("should set the selection end to the first visible row, when dragging the selection from a cell to a column header", function () {
+    var hot = handsontable({
+      width: 200,
+      height: 200,
+      startRows: 20,
+      startCols: 20,
+      colHeaders: true,
+      rowHeaders: true
+    });
 
-  //it("should set the selection end to the first visible column, when dragging the selection from a cell to a row header", function () {
-  //  var hot = handsontable({
-  //    width: 200,
-  //    height: 200,
-  //    startRows: 20,
-  //    startCols: 20,
-  //    colHeaders: true,
-  //    rowHeaders: true
-  //  });
-  //
-  //  hot.view.wt.scrollVertical(10);
-  //  hot.view.wt.scrollHorizontal(10);
-  //
-  //  hot.render();
-  //
-  //  waits(30);
-  //
-  //  runs(function() {
-  //    $(getCell(12,11)).simulate('mousedown');
-  //    this.$container.find('.ht_clone_left tbody th:eq(12)').simulate('mouseover');
-  //  });
-  //
-  //  waits(30);
-  //
-  //  runs(function() {
-  //    expect(getSelected()).toEqual([12, 11, 12, 10]);
-  //  });
-  //});
+    hot.view.wt.scrollVertical(10);
+    hot.view.wt.scrollHorizontal(10);
+
+    hot.render();
+
+    waits(30);
+
+    runs(function() {
+      $(getCell(12,11)).simulate('mousedown');
+      this.$container.find('.ht_clone_top thead th:eq(2)').simulate('mouseover');
+    });
+
+    waits(30);
+
+    runs(function() {
+      expect(getSelected()).toEqual([12, 11, 10, 11]);
+    });
+  });
+
+  it("should set the selection end to the first visible column, when dragging the selection from a cell to a row header", function () {
+    var hot = handsontable({
+      width: 200,
+      height: 200,
+      startRows: 20,
+      startCols: 20,
+      colHeaders: true,
+      rowHeaders: true
+    });
+
+    hot.view.wt.scrollVertical(10);
+    hot.view.wt.scrollHorizontal(10);
+
+    hot.render();
+
+    waits(30);
+
+    runs(function() {
+      $(getCell(12,11)).simulate('mousedown');
+      this.$container.find('.ht_clone_left tbody th:eq(12)').simulate('mouseover');
+    });
+
+    waits(30);
+
+    runs(function() {
+      expect(getSelected()).toEqual([12, 11, 12, 10]);
+    });
+  });
 
   it("should allow to scroll the table when a whole column is selected and table is longer than it's container", function () {
     var errCount = 0;

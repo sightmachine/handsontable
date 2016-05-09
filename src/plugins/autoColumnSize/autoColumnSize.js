@@ -1,4 +1,3 @@
-
 import BasePlugin from './../_base';
 import {arrayEach, arrayFilter} from './../../helpers/array';
 import {cancelAnimationFrame, requestAnimationFrame, isVisible} from './../../helpers/dom/element';
@@ -62,6 +61,7 @@ class AutoColumnSize extends BasePlugin {
   static get CALCULATION_STEP() {
     return 50;
   }
+
   static get SYNC_CALCULATION_LIMIT() {
     return 50;
   }
@@ -75,22 +75,26 @@ class AutoColumnSize extends BasePlugin {
      */
     this.widths = [];
     /**
-     * Instance of GhostTable for rows and columns size calculations.
+     * Instance of {@link GhostTable} for rows and columns size calculations.
      *
      * @type {GhostTable}
      */
     this.ghostTable = new GhostTable(this.hot);
     /**
-     * Instance of SamplesGenerator for generating samples necessary for columns width calculations.
+     * Instance of {@link SamplesGenerator} for generating samples necessary for columns width calculations.
      *
      * @type {SamplesGenerator}
      */
     this.samplesGenerator = new SamplesGenerator((row, col) => this.hot.getDataAtCell(row, col));
     /**
+     * `true` if only the first calculation was performed.
+     *
      * @type {Boolean}
      */
     this.firstCalculation = true;
     /**
+     * `true` if the size calculation is in progress.
+     *
      * @type {Boolean}
      */
     this.inProgress = false;
@@ -115,6 +119,14 @@ class AutoColumnSize extends BasePlugin {
     if (this.enabled) {
       return;
     }
+
+    let setting = this.hot.getSettings().autoColumnSize;
+    let samplingRatio = setting && setting.hasOwnProperty('samplingRatio') ? this.hot.getSettings().autoColumnSize.samplingRatio : void 0;
+
+    if (samplingRatio && !isNaN(samplingRatio)) {
+      this.samplesGenerator.customSampleCount = parseInt(samplingRatio, 10);
+    }
+
     this.addHook('afterLoadData', () => this.onAfterLoadData());
     this.addHook('beforeChange', (changes) => this.onBeforeChange(changes));
 
@@ -178,7 +190,12 @@ class AutoColumnSize extends BasePlugin {
 
         return;
       }
-      this.calculateColumnsWidth({from: current, to: Math.min(current + AutoColumnSize.CALCULATION_STEP, length)}, rowRange);
+
+      this.calculateColumnsWidth({
+        from: current,
+        to: Math.min(current + AutoColumnSize.CALCULATION_STEP, length)
+      }, rowRange);
+
       current = current + AutoColumnSize.CALCULATION_STEP + 1;
 
       if (current < length) {

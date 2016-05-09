@@ -214,6 +214,7 @@ function TableView(instance) {
     },
     externalRowCalculator: this.instance.getPlugin('autoRowSize') && this.instance.getPlugin('autoRowSize').isEnabled(),
     table: table,
+    preventOverflow: () => this.settings.preventOverflow,
     stretchH: this.settings.stretchH,
     data: instance.getDataAtCell,
     totalRows: () => instance.countRows(),
@@ -391,6 +392,9 @@ function TableView(instance) {
     onAfterMomentumScroll: function() {
       instance.runHooks('afterMomentumScroll');
     },
+    onBeforeStretchingColumnWidth: function(stretchedWidth, column) {
+      return instance.runHooks('beforeStretchingColumnWidth', stretchedWidth, column);
+    },
     viewportRowCalculatorOverride: function(calc) {
       let rows = instance.countRows();
       let viewportOffset = that.settings.viewportRowRenderingOffset;
@@ -431,6 +435,12 @@ function TableView(instance) {
       }
       instance.runHooks('afterViewportColumnCalculatorOverride', calc);
     },
+    rowHeaderWidth: function() {
+      return that.settings.rowHeaderWidth;
+    },
+    columnHeaderHeight: function() {
+      return that.settings.columnHeaderHeight;
+    }
   };
 
   Handsontable.hooks.run(instance, 'beforeInitWalkontable', walkontableConfig);

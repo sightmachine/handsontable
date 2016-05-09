@@ -131,7 +131,9 @@ class ColumnSorting extends BasePlugin {
       sortingColumn = loadedSortingState.sortColumn;
       sortingOrder = loadedSortingState.sortOrder;
     }
-    this.sortByColumn(sortingColumn, sortingOrder);
+    if (typeof sortingColumn === 'number') {
+      this.sortByColumn(sortingColumn, sortingOrder);
+    }
   }
 
   /**
@@ -167,9 +169,12 @@ class ColumnSorting extends BasePlugin {
       return;
     }
 
-    Handsontable.hooks.run(this.hot, 'beforeColumnSort', this.hot.sortColumn, this.hot.sortOrder);
+    let allowSorting = Handsontable.hooks.run(this.hot, 'beforeColumnSort', this.hot.sortColumn, this.hot.sortOrder);
 
-    this.sort();
+    if (allowSorting !== false) {
+      this.sort();
+    }
+    this.updateSortIndicator();
     this.hot.render();
 
     this.saveSortingState();
@@ -360,14 +365,12 @@ class ColumnSorting extends BasePlugin {
     this.hot.sortingEnabled = false; // this is required by translateRow plugin hook
     this.hot.sortIndex.length = 0;
 
-    var colOffset = this.hot.colOffset();
-    for (var i = 0, ilen = this.hot.countRows() - this.hot.getSettings().minSpareRows; i < ilen; i++) {
-      this.hot.sortIndex.push([i, this.hot.getDataAtCell(i, this.hot.sortColumn + colOffset)]);
+    for (let i = 0, ilen = this.hot.countRows() - this.hot.getSettings().minSpareRows; i < ilen; i++) {
+      this.hot.sortIndex.push([i, this.hot.getDataAtCell(i, this.hot.sortColumn)]);
     }
 
     colMeta = this.hot.getCellMeta(0, this.hot.sortColumn);
-
-    this.sortIndicators[this.hot.sortColumn] = colMeta.sortIndicator;
+    this.updateSortIndicator();
 
     switch (colMeta.type) {
       case 'date':
@@ -380,11 +383,23 @@ class ColumnSorting extends BasePlugin {
     this.hot.sortIndex.sort(sortFunction(this.hot.sortOrder));
 
     // Append spareRows
-    for (var i = this.hot.sortIndex.length; i < this.hot.countRows(); i++) {
-      this.hot.sortIndex.push([i, this.hot.getDataAtCell(i, this.hot.sortColumn + colOffset)]);
+    for (let i = this.hot.sortIndex.length; i < this.hot.countRows(); i++) {
+      this.hot.sortIndex.push([i, this.hot.getDataAtCell(i, this.hot.sortColumn)]);
     }
 
     this.hot.sortingEnabled = true; // this is required by translateRow plugin hook
+  }
+
+  /**
+   * Update indicator states.
+   */
+  updateSortIndicator() {
+    if (typeof this.hot.sortOrder == 'undefined') {
+      return;
+    }
+    const colMeta = this.hot.getCellMeta(0, this.hot.sortColumn);
+
+    this.sortIndicators[this.hot.sortColumn] = colMeta.sortIndicator;
   }
 
   /**
